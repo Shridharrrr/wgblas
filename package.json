@@ -1,0 +1,26 @@
+{
+  "name": "wgblas",
+  "version": "1.0.0",
+  "description": "BLAS on WebGPU",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manit2004/wgblas.git"
+  },
+  "keywords": [
+    "BLAS",
+    "WebGPU"
+  ],
+  "author": "Manit Roy",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/manit2004/wgblas/issues"
+  },
+  "homepage": "https://github.com/manit2004/wgblas#readme",
+  "dependencies": {
+    "webgpu": "^0.4.0"
+  }
+}
