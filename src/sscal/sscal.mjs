@@ -1,7 +1,7 @@
-import { uploadBuffer, createParamsBuffer } from "./util/buffer.mjs";
-import { dispatch } from "./util/dispatch.mjs";
-import { loadShader } from "./util/pipeline.mjs";
-import { calcWorkgroups } from "./util/workgroup.mjs";
+import { uploadBuffer, createParamsBuffer } from "../util/buffer.mjs";
+import { dispatch } from "../util/dispatch.mjs";
+import { loadShader } from "../util/pipeline.mjs";
+import { calcWorkgroups } from "../util/workgroup.mjs";
 
 // BLAS sscal — single precision: x = alpha * x
 export async function sscal(n, alpha, x, incx) {

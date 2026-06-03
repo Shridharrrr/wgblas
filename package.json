@@ -4,10 +4,16 @@
   "description": "BLAS on WebGPU",
   "type": "module",
   "main": "index.mjs",
+  "types": "./index.d.ts",
   "exports": {
-    ".": "./index.mjs",
-    "./sscal": "./src/sscal.mjs",
-    "./dscal": "./src/dscal.mjs",
+    ".": {
+      "import": "./index.mjs",
+      "types": "./index.d.ts"
+    },
+    "./sscal": {
+      "import": "./src/sscal/sscal.mjs",
+      "types": "./src/sscal/sscal.d.ts"
+    },
     "./util/random": "./src/util/random.mjs"
   },
   "scripts": {
