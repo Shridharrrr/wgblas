@@ -13,7 +13,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
-    "example:sscal": "vite --open /examples/sscal/sscal.html"
+    "example": "node scripts/example.mjs"
   },
   "repository": {
     "type": "git",
