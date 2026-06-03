@@ -7,7 +7,7 @@ export async function init({ powerPreference = "high-performance" } = {}) {
   }
 
   let gpu;
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" && typeof Deno === "undefined") {
     const { create, globals } = await import("webgpu");
     Object.assign(globalThis, globals);
     gpu = create([]);

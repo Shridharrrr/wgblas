@@ -14,6 +14,11 @@ export async function uploadBuffer(data, byteSize, label = "blas-input", readbac
 
   const device = getDevice();
 
+  const maxSize = device.limits.maxStorageBufferBindingSize;
+  if (byteSize > maxSize) {
+    throw new Error(`Buffer size ${byteSize} bytes exceeds device limit of ${maxSize} bytes.`);
+  }
+
   const usage = readback
     ? GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
     : GPUBufferUsage.STORAGE;
