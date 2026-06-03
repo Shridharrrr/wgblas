@@ -5,7 +5,8 @@ import { calcWorkgroups } from "./util/workgroup.mjs";
 
 // BLAS sscal — single precision: x = alpha * x
 export async function sscal(n, alpha, x, incx) {
-  if (isNaN(n) || isNaN(alpha) || isNaN(incx)) throw new Error("n, alpha, and incx must not be NaN.");
+  if (!Number.isInteger(n) || !Number.isInteger(incx)) throw new Error("n and incx must be integers.");
+  if (isNaN(alpha)) throw new Error("alpha must not be NaN.");
   if (incx <= 0) throw new Error("incx must be positive.");
   if (n <= 0) return x;
 
