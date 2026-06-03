@@ -1,7 +1,3 @@
-import { create, globals } from "webgpu";
-
-Object.assign(globalThis, globals);
-
 let _device = null;
 let _adapter = null;
 
@@ -10,12 +6,20 @@ export async function init({ powerPreference = "high-performance" } = {}) {
     return "WebGPU already initialized.";
   }
 
-  const navigator = { gpu: create([]) };
-  if (!navigator.gpu) {
+  let gpu;
+  if (typeof window === "undefined") {
+    const { create, globals } = await import("webgpu");
+    Object.assign(globalThis, globals);
+    gpu = create([]);
+  } else {
+    gpu = navigator.gpu;
+  }
+
+  if (!gpu) {
     throw new Error("WebGPU not supported in this environment.");
   }
 
-  _adapter = await navigator.gpu.requestAdapter({ powerPreference });
+  _adapter = await gpu.requestAdapter({ powerPreference }) ?? await gpu.requestAdapter();
   if (!_adapter) {
     throw new Error("No WebGPU adapter found.");
   }

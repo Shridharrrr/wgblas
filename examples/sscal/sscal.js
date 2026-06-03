@@ -11,4 +11,4 @@ const x = randomFloat32Array(n, -10, 10);
 console.log("before:", x);
 const result = await sscal(n, alpha, x, 1);
 console.log("after: ", result);
-cleanup();
+if (typeof process !== "undefined") cleanup();
