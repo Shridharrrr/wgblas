@@ -28,6 +28,13 @@ export async function init({ powerPreference = "high-performance" } = {}) {
   return "WebGPU initialized successfully.";
 }
 
+export function cleanup() {
+  if (_device) {
+    _device.destroy();
+    _device = null;
+  }
+}
+
 export function getDevice() {
   if (!_device) {
     throw new Error("WebGPU device not initialized — call init() first.");

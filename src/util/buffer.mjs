@@ -1,5 +1,9 @@
 import { getDevice } from "../init.mjs";
 
+export function destroyBuffers(...buffers) {
+  buffers.flat().forEach((b) => b.destroy());
+}
+
 export async function uploadBuffer(data, byteSize, label = "blas-input", readback = false) {
   if (!(data instanceof Float32Array)) {
     throw new Error("Expected a Float32Array.");

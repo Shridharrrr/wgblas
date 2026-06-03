@@ -1,7 +1,7 @@
 import { getDevice } from "../init.mjs";
 
 async function loadCode(shaderName) {
-  if (typeof fetch !== "undefined") {
+  if (typeof window !== "undefined") {
     const response = await fetch(`/src/shaders/${shaderName}.wgsl`);
     return response.text();
   } else {
