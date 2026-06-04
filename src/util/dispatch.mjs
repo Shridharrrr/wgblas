@@ -3,6 +3,9 @@ import { createReadBuffer, prepareBindGroupEntries, destroyBuffers } from "./buf
 import { runComputePass } from "./compute.mjs";
 import { extractResult } from "./result.mjs";
 
+// keeps Dawn objects alive across await points — GC'd wrappers crash native code
+const _live = [];
+
 export async function dispatch(
   buffers,
   pipeline,
@@ -13,33 +16,49 @@ export async function dispatch(
 ) {
   const device = getDevice();
 
-  // 1. Prepare bind group entries — creates result buffer if resultByteSize > 0
+  // 1. Prepare bind group entries
   const { entries, resultBuffer } = prepareBindGroupEntries(buffers, resultByteSize, pipeline.label);
 
-  // 2. Bind group — auto-assign binding 0, 1, 2... by position
-  const bindGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries,
-  });
+  // 2. Bind group
+  const bindGroupLayout = pipeline.getBindGroupLayout(0);
+  const bindGroup = device.createBindGroup({ layout: bindGroupLayout, entries });
 
-  // 3. Encode compute pass — returns command encoder ready for submission
+  // 3. Encode compute pass
   const commandEncoder = runComputePass(pipeline, bindGroup, workgroups);
 
   // 4. Readback — multiple in-place buffers (e.g. sswap)
   if (Array.isArray(inPlaceBuffer)) {
     const readBuffers = inPlaceBuffer.map((buf) => createReadBuffer(buf, buf.size, commandEncoder));
-    device.queue.submit([commandEncoder.finish()]);
-    const results = await Promise.all(readBuffers.map((rb) => extractResult(rb, readbackType)));
-    destroyBuffers(readBuffers, buffers);
-    return results;
+    const commandBuffer = commandEncoder.finish();
+    device.queue.submit([commandBuffer]);
+
+    _live.push(bindGroup, commandEncoder, commandBuffer, bindGroupLayout, ...readBuffers, ...buffers); // anchor until mapAsync resolves
+
+    try {
+      const results = await Promise.all(readBuffers.map((rb) => extractResult(rb, readbackType)));
+      destroyBuffers(readBuffers, buffers);
+      return results;
+    } finally {
+      _live.length = 0;
+    }
   }
 
   // 4. Readback — single buffer (separate result or single in-place)
   const sourceBuffer = resultByteSize > 0 ? resultBuffer : inPlaceBuffer;
   const readByteSize = resultByteSize > 0 ? resultByteSize : inPlaceBuffer.size;
   const readBuffer = createReadBuffer(sourceBuffer, readByteSize, commandEncoder);
-  device.queue.submit([commandEncoder.finish()]);
-  const result = await extractResult(readBuffer, readbackType);
-  destroyBuffers(readBuffer, resultBuffer ?? [], buffers);
-  return result;
+  const commandBuffer = commandEncoder.finish();
+  device.queue.submit([commandBuffer]);
+  const extra = resultBuffer ? [resultBuffer] : [];
+
+  _live.push(bindGroup, commandEncoder, commandBuffer, bindGroupLayout, readBuffer,
+             ...buffers, ...extra); // anchor until mapAsync resolves
+             
+  try {
+    const result = await extractResult(readBuffer, readbackType);
+    destroyBuffers(readBuffer, buffers, ...extra);
+    return result;
+  } finally {
+    _live.length = 0;
+  }
 }

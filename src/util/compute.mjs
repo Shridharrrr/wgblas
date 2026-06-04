@@ -6,7 +6,6 @@ export function runComputePass(pipeline, bindGroup, workgroups) {
   const commandEncoder = device.createCommandEncoder();
   const passEncoder = commandEncoder.beginComputePass();
 
-  passEncoder.pushDebugGroup(pipeline.label);
   passEncoder.setPipeline(pipeline);
   passEncoder.setBindGroup(0, bindGroup);
 
@@ -16,8 +15,9 @@ export function runComputePass(pipeline, bindGroup, workgroups) {
     passEncoder.dispatchWorkgroups(workgroups.x, workgroups.y);
   }
 
-  passEncoder.popDebugGroup();
   passEncoder.end();
+
+  commandEncoder._passEncoder = passEncoder; // anchor — GC'd passEncoder may crash native encoder
 
   return commandEncoder;
 }

@@ -31,5 +31,7 @@ export async function loadShader(shaderName) {
     compute: { module: shaderModule },
   });
 
+  pipeline._shaderModule = shaderModule; // anchor — GC'd shaderModule crashes native pipeline
+
   return pipeline;
 }

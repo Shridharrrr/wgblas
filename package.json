@@ -17,7 +17,7 @@
     "./util/random": "./src/util/random.mjs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node scripts/test.mjs",
     "dev": "vite",
     "example": "node scripts/example.mjs"
   },
