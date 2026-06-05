@@ -6,9 +6,9 @@ import { init, cleanup } from "wgblas";
 import { sscal } from "wgblas/sscal";
 import { assertUlp } from "../helpers/ulp.js";
 
-const fixtures = JSON.parse(
-  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "fixtures/fixtures.json"), "utf8")
-);
+const thisDir = dirname(fileURLToPath(import.meta.url));
+const fixturesPath = join(thisDir, "fixtures/fixtures.json");
+const fixtures = JSON.parse(readFileSync(fixturesPath, "utf8"));
 
 before(async () => { await init(); });
 after(() => { cleanup(); });
