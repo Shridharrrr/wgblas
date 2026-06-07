@@ -1,6 +1,9 @@
+import { benchmarkMode } from "./util/benchmark.mjs";
+
 let _device = null;
 let _adapter = null;
 let _gpu = null; // keep wgpu Instance alive — GC'ing it invalidates adapter and device
+let _benchmarkEnabled = false;
 
 const _resetCallbacks = [];
 
@@ -8,7 +11,11 @@ export function onCleanup(cb) {
   _resetCallbacks.push(cb);
 }
 
-export async function init({ powerPreference = "high-performance" } = {}) {
+export function isBenchmarkEnabled() {
+  return _benchmarkEnabled;
+}
+
+export async function init({ powerPreference = "high-performance", benchmark = false } = {}) {
   if (_device) {
     return "WebGPU already initialized.";
   }
@@ -32,7 +39,8 @@ export async function init({ powerPreference = "high-performance" } = {}) {
     throw new Error("No WebGPU adapter found.");
   }
 
-  _device = await _adapter.requestDevice();
+  _benchmarkEnabled = benchmark;
+  _device = await _adapter.requestDevice(benchmarkMode(_adapter, benchmark));
   _device.addEventListener("uncapturederror", (e) => {
     console.error("Uncaptured GPU error:", e.error.message);
   });
@@ -47,6 +55,7 @@ export function cleanup() {
   }
   _adapter = null;
   _gpu = null;
+  _benchmarkEnabled = false;
   _resetCallbacks.forEach((cb) => cb());
 }
 

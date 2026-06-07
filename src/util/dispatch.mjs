@@ -1,6 +1,7 @@
 import { getDevice } from "../init.mjs";
 import { createReadBuffer, prepareBindGroupEntries, destroyBuffers } from "./buffer.mjs";
 import { runComputePass } from "./compute.mjs";
+import { extractTimestamp } from "./benchmark.mjs";
 import { extractResult } from "./result.mjs";
 
 // keeps Dawn objects alive across await points — GC'd wrappers crash native code
@@ -24,7 +25,7 @@ export async function dispatch(
   const bindGroup = device.createBindGroup({ layout: bindGroupLayout, entries });
 
   // 3. Encode compute pass
-  const commandEncoder = runComputePass(pipeline, bindGroup, workgroups);
+  const { commandEncoder, ts } = runComputePass(pipeline, bindGroup, workgroups);
 
   // 4. Readback — multiple in-place buffers (e.g. sswap)
   if (Array.isArray(inPlaceBuffer)) {
@@ -32,11 +33,14 @@ export async function dispatch(
     const commandBuffer = commandEncoder.finish();
     device.queue.submit([commandBuffer]);
 
-    _live.push(bindGroup, commandEncoder, commandBuffer, bindGroupLayout, ...readBuffers, ...buffers); // anchor until mapAsync resolves
+    _live.push(bindGroup, commandEncoder, commandBuffer, bindGroupLayout, ...readBuffers, ...buffers);
+    if (ts) _live.push(ts);
 
     try {
       const results = await Promise.all(readBuffers.map((rb) => extractResult(rb, readbackType)));
       destroyBuffers(readBuffers, buffers);
+      const gpuTimeMs = await extractTimestamp(ts);
+      if (gpuTimeMs !== undefined) return { result: results, gpuTimeMs };
       return results;
     } finally {
       _live.length = 0;
@@ -51,12 +55,14 @@ export async function dispatch(
   device.queue.submit([commandBuffer]);
   const extra = resultBuffer ? [resultBuffer] : [];
 
-  _live.push(bindGroup, commandEncoder, commandBuffer, bindGroupLayout, readBuffer,
-             ...buffers, ...extra); // anchor until mapAsync resolves
-             
+  _live.push(bindGroup, commandEncoder, commandBuffer, bindGroupLayout, readBuffer, ...buffers, ...extra);
+  if (ts) _live.push(ts);
+
   try {
     const result = await extractResult(readBuffer, readbackType);
     destroyBuffers(readBuffer, buffers, ...extra);
+    const gpuTimeMs = await extractTimestamp(ts);
+    if (gpuTimeMs !== undefined) return { result, gpuTimeMs };
     return result;
   } finally {
     _live.length = 0;

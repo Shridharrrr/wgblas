@@ -1,10 +1,13 @@
 import { getDevice } from "../init.mjs";
+import { beginTimestamp, resolveTimestamp } from "./benchmark.mjs";
 
 export function runComputePass(pipeline, bindGroup, workgroups) {
   const device = getDevice();
 
+  const { querySet, passDescriptor } = beginTimestamp();
+
   const commandEncoder = device.createCommandEncoder();
-  const passEncoder = commandEncoder.beginComputePass();
+  const passEncoder = commandEncoder.beginComputePass(passDescriptor);
 
   passEncoder.setPipeline(pipeline);
   passEncoder.setBindGroup(0, bindGroup);
@@ -17,7 +20,9 @@ export function runComputePass(pipeline, bindGroup, workgroups) {
 
   passEncoder.end();
 
+  const ts = resolveTimestamp(commandEncoder, querySet);
+
   commandEncoder._passEncoder = passEncoder; // anchor — GC'd passEncoder may crash native encoder
 
-  return commandEncoder;
+  return { commandEncoder, ts };
 }
