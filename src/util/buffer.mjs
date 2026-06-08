@@ -31,38 +31,25 @@ export function uploadBuffer(data, label = "blas-input", readback = false) {
   return buffer;
 }
 
-export function prepareBindGroupEntries(buffers, resultByteSize, pipelineLabel) {
-  let resultBuffer = null;
-  let allBuffers = [...buffers];
-
-  if (resultByteSize > 0) {
-    const device = getDevice();
-    resultBuffer = device.createBuffer({
-      label: `${pipelineLabel}-result`,
-      size: resultByteSize,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
-    });
-    allBuffers = [...buffers, resultBuffer];
-  }
-
-  const entries = allBuffers.map((buffer, i) => ({
-    binding: i,
-    resource: { buffer },
-  }));
-
-  return { entries, resultBuffer };
+export function createResultBuffer(size, label = "blas-result") {
+  const device = getDevice();
+  return device.createBuffer({
+    label,
+    size,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
+  });
 }
 
-export function createReadBuffer(resultBuffer, byteSize, commandEncoder) {
+export function stageReadback(commandEncoder, sourceBuffer) {
   const device = getDevice();
 
   const readBuffer = device.createBuffer({
     label: "blas-readback",
-    size: byteSize,
+    size: sourceBuffer.size,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   });
 
-  commandEncoder.copyBufferToBuffer(resultBuffer, 0, readBuffer, 0, byteSize);
+  commandEncoder.copyBufferToBuffer(sourceBuffer, 0, readBuffer, 0, sourceBuffer.size);
 
   return readBuffer;
 }

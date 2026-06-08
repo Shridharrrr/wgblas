@@ -1,4 +1,9 @@
 import { getDevice } from "../init.mjs";
+
+export function submit(commandEncoder) {
+  const device = getDevice();
+  device.queue.submit([commandEncoder.finish()]);
+}
 import { beginTimestamp, resolveTimestamp } from "./benchmark.mjs";
 
 export function runComputePass(pipeline, bindGroup, workgroups) {
