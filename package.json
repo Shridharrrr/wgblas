@@ -16,11 +16,6 @@
     },
     "./util/random": "./src/util/random.mjs"
   },
-  "scripts": {
-    "test": "node scripts/test.mjs",
-    "dev": "vite",
-    "example": "node scripts/example.mjs"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/manit2004/wgblas.git"
