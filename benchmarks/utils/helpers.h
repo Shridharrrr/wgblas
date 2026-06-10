@@ -23,7 +23,7 @@ static float median(float *arr, int n) {
     float *tmp = malloc(n * sizeof(float));
     memcpy(tmp, arr, n * sizeof(float));
     qsort(tmp, n, sizeof(float), cmp_float);
-    float m = tmp[n / 2];
+    float m = (n % 2 == 0) ? (tmp[n / 2 - 1] + tmp[n / 2]) / 2.0f : tmp[n / 2];
     free(tmp);
     return m;
 }
