@@ -1,4 +1,4 @@
-.PHONY: test bench cuda example help
+.PHONY: test bench cuda example fixtures help
 
 # ── Help ─────────────────────────────────────────────────────────────────────
 
@@ -17,10 +17,22 @@ help:
 	@echo "  cuda                  Build and run all CUDA benchmarks"
 	@echo "  cuda-<name>           Build and run a specific CUDA benchmark (e.g. cuda-sscal)"
 	@echo ""
+	@echo "Fixtures"
+	@echo "  fixtures              Regenerate all test fixtures"
+	@echo "  fixtures-<name>       Regenerate fixtures for a specific function (e.g. fixtures-sscal)"
+	@echo ""
 	@echo "Examples"
 	@echo "  example               Run all Node examples"
 	@echo "  example-<name>        Run a specific Node example (e.g. example-sscal)"
 	@echo "  example-<name>-web    Open a specific example in the browser (e.g. example-sscal-web)"
+
+# ── Fixtures ─────────────────────────────────────────────────────────────────
+
+fixtures:
+	@for f in tests/*/fixtures/fixtures.py; do python -c "import os,runpy; os.chdir(os.path.dirname('$$f')); runpy.run_path(os.path.basename('$$f'))"; done
+
+fixtures-%:
+	cd tests/$*/fixtures && python fixtures.py
 
 # ── Tests ────────────────────────────────────────────────────────────────────
 
