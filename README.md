@@ -1,8 +1,9 @@
 # wgblas
 `wgblas` is an initiative to implement all the standard level 1, 2, 3 BLAS functions on the top of webgpu. 
 
-## Implementation checklist
+## Available Functions
 - [x] sscal
+- [x] sswap
 
 ## Requirements
 
