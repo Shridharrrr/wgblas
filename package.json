@@ -14,6 +14,10 @@
       "import": "./src/sscal/sscal.mjs",
       "types": "./src/sscal/sscal.d.ts"
     },
+    "./sswap": {
+      "import": "./src/sswap/sswap.mjs",
+      "types": "./src/sswap/sswap.d.ts"
+    },
     "./util/random": "./src/util/random.mjs"
   },
   "repository": {

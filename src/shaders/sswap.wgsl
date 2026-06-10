@@ -1,14 +1,15 @@
-// sscal: x = alpha * x
+// sswap: x <-> y
 
 @group(0) @binding(0) var<storage, read_write> x: array<f32>;
+@group(0) @binding(1) var<storage, read_write> y: array<f32>;
 
 struct Params {
   n:     u32,
-  alpha: f32,
   x_inc: u32,
+  y_inc: u32,
 }
 
-@group(0) @binding(1) var<uniform> params: Params;
+@group(0) @binding(2) var<uniform> params: Params;
 
 const WGS: u32 = 64;
 
@@ -18,6 +19,8 @@ fn main(
   @builtin(num_workgroups) num_wg: vec3u,
 ) {
   for (var id = gid.x; id < params.n; id += num_wg.x * WGS) {
-    x[id * params.x_inc] = params.alpha * x[id * params.x_inc];
+    let temp = x[id * params.x_inc];
+    x[id * params.x_inc] = y[id * params.y_inc];
+    y[id * params.y_inc] = temp;
   }
 }
