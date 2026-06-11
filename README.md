@@ -4,6 +4,7 @@
 ## Available Functions
 - [x] sscal
 - [x] sswap
+- [x] saxpy
 
 ## Requirements
 
