@@ -6,6 +6,7 @@
       "wgblas": ["./index.d.ts"],
       "wgblas/sscal": ["./src/sscal/sscal.d.ts"],
       "wgblas/sswap": ["./src/sswap/sswap.d.ts"],
+      "wgblas/saxpy": ["./src/saxpy/saxpy.d.ts"],
       "wgblas/util/random": ["./src/util/random.mjs"]
     }
   }

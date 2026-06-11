@@ -18,6 +18,10 @@
       "import": "./src/sswap/sswap.mjs",
       "types": "./src/sswap/sswap.d.ts"
     },
+    "./saxpy": {
+      "import": "./src/saxpy/saxpy.mjs",
+      "types": "./src/saxpy/saxpy.d.ts"
+    },
     "./util/random": "./src/util/random.mjs"
   },
   "repository": {
