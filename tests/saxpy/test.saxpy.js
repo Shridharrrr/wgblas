@@ -24,6 +24,6 @@ test("saxpy fixtures", async () => {
     const expectedY = new Float32Array(fixture.expected_y);
 
     const { y: resultY } = await saxpy(n, alpha, x, incx, y, incy);
-    assertUlp(resultY, expectedY, 1, "saxpy");
+    assertUlp(resultY, expectedY, 0, "saxpy");
   }
 });
