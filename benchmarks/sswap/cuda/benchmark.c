@@ -10,7 +10,7 @@ int main(void) {
     cublasHandle_t handle;
     cublasCreate(&handle);
 
-    int sizes[] = { 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216 };
+    int sizes[] = { 32, 64, 128, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216 };
     int num_sizes = (int)(sizeof(sizes) / sizeof(sizes[0]));
 
     printf("%-10s  %-12s  %-12s\n", "n", "compute_ms", "compute_GBs");
