@@ -6,21 +6,24 @@ import { extractTimestamp } from "../util/benchmark.mjs";
 import { loadShader } from "../util/pipeline.mjs";
 import { calcWorkgroups } from "../util/workgroup.mjs";
 import { onCleanup } from "../init.mjs";
+import { GpuVector } from "../classes/GpuVector.mjs";
 
 let _pipeline = null;
 onCleanup(() => { _pipeline = null; });
 
 export async function sscal(n, alpha, x, incx) {
+  const xIsGpu = x instanceof GpuVector;
+
   if (!Number.isInteger(n) || !Number.isInteger(incx)) throw new Error("n and incx must be integers.");
   if (isNaN(alpha)) throw new Error("alpha must not be NaN.");
   if (incx <= 0) throw new Error("incx must be positive.");
-  if (n <= 0) return x;
-  if (!(x instanceof Float32Array)) throw new Error("x must be a Float32Array.");
+  if (!(x instanceof Float32Array) && !(x instanceof GpuVector)) throw new Error("x must be a Float32Array or GpuVector.");
+  if (n <= 0) return xIsGpu ? {} : x;
   if (x.length < (n - 1) * incx + 1) throw new Error("x does not have enough elements for the given n and incx.");
 
   if (!_pipeline) _pipeline = await loadShader("sscal");
 
-  const xBuffer = uploadBuffer(x, "sscal-x", true);
+  const xBuffer = xIsGpu ? x._buf : uploadBuffer(x, "sscal-x", true);
   const paramsBuffer = createParamsBuffer([
     { value: n,     type: "u32" },
     { value: alpha, type: "f32" },
@@ -29,12 +32,19 @@ export async function sscal(n, alpha, x, incx) {
 
   const bindGroup = createBindGroup(_pipeline.getBindGroupLayout(0), [xBuffer, paramsBuffer]);
   const { commandEncoder, ts } = runComputePass(_pipeline, bindGroup, calcWorkgroups(n));
-  const readBuffer = stageReadback(commandEncoder, xBuffer);
+  const readBuffer = xIsGpu ? null : stageReadback(commandEncoder, xBuffer);
+
   submit(commandEncoder);
 
-  const result = await extractResult(readBuffer, Float32Array);
   const gpuTimeMs = await extractTimestamp(ts);
 
+  if (xIsGpu) {
+    destroyBuffers(paramsBuffer);
+    if (gpuTimeMs !== undefined) return { gpuTimeMs };
+    return {};
+  }
+
+  const result = await extractResult(readBuffer, Float32Array);
   destroyBuffers(xBuffer, paramsBuffer, readBuffer);
 
   if (gpuTimeMs !== undefined) return { result, gpuTimeMs };

@@ -22,9 +22,11 @@ help:
 	@echo "  fixtures-<name>       Regenerate fixtures for a specific function (e.g. fixtures-sscal)"
 	@echo ""
 	@echo "Examples"
-	@echo "  example               Run all Node examples"
-	@echo "  example-<name>        Run a specific Node example (e.g. example-sscal)"
-	@echo "  example-<name>-web    Open a specific example in the browser (e.g. example-sscal-web)"
+	@echo "  example                      Run all Node examples"
+	@echo "  example-<name>               Run a specific Node example (e.g. example-sscal)"
+	@echo "  example-<name>-web           Open a specific example in the browser (e.g. example-sscal-web)"
+	@echo "  example-gpuvec-<name>        Run a GpuVector Node example (e.g. example-gpuvec-saxpy)"
+	@echo "  example-gpuvec-<name>-web    Open a GpuVector example in the browser (e.g. example-gpuvec-saxpy-web)"
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -69,3 +71,9 @@ example-%:
 
 example-%-web:
 	npx vite --open /examples/$*/$*.html
+
+example-gpuvec-%:
+	node examples/$*/gpuvec.$*.js
+
+example-gpuvec-%-web:
+	npx vite --open /examples/$*/gpuvec.$*.html

@@ -6,23 +6,28 @@ import { extractTimestamp } from "../util/benchmark.mjs";
 import { loadShader } from "../util/pipeline.mjs";
 import { calcWorkgroups } from "../util/workgroup.mjs";
 import { onCleanup } from "../init.mjs";
+import { GpuVector } from "../classes/GpuVector.mjs";
 
 let _pipeline = null;
 onCleanup(() => { _pipeline = null; });
 
 export async function sswap(n, x, incx, y, incy) {
+  const xIsGpu = x instanceof GpuVector;
+  const yIsGpu = y instanceof GpuVector;
+
   if (!Number.isInteger(n) || !Number.isInteger(incx) || !Number.isInteger(incy)) throw new Error("n, incx, and incy must be integers.");
   if (incx <= 0 || incy <= 0) throw new Error("incx and incy must be positive.");
-  if (n <= 0) return { x, y };
-  if (!(x instanceof Float32Array)) throw new Error("x must be a Float32Array.");
-  if (!(y instanceof Float32Array)) throw new Error("y must be a Float32Array.");
+  if (!(x instanceof Float32Array) && !(x instanceof GpuVector)) throw new Error("x must be a Float32Array or GpuVector.");
+  if (!(y instanceof Float32Array) && !(y instanceof GpuVector)) throw new Error("y must be a Float32Array or GpuVector.");
+  if (x.constructor !== y.constructor) throw new Error("x and y must be the same type (both Float32Array or both GpuVector).");
+  if (n <= 0) return xIsGpu ? {} : { x, y };
   if (x.length < (n - 1) * incx + 1) throw new Error("x does not have enough elements for the given n and incx.");
   if (y.length < (n - 1) * incy + 1) throw new Error("y does not have enough elements for the given n and incy.");
 
   if (!_pipeline) _pipeline = await loadShader("sswap");
 
-  const xBuffer = uploadBuffer(x, "sswap-x", true);
-  const yBuffer = uploadBuffer(y, "sswap-y", true);
+  const xBuffer = xIsGpu ? x._buf : uploadBuffer(x, "sswap-x", true);
+  const yBuffer = yIsGpu ? y._buf : uploadBuffer(y, "sswap-y", true);
   const paramsBuffer = createParamsBuffer([
     { value: n,    type: "u32" },
     { value: incx, type: "u32" },
@@ -31,15 +36,23 @@ export async function sswap(n, x, incx, y, incy) {
 
   const bindGroup = createBindGroup(_pipeline.getBindGroupLayout(0), [xBuffer, yBuffer, paramsBuffer]);
   const { commandEncoder, ts } = runComputePass(_pipeline, bindGroup, calcWorkgroups(n));
-  const xReadBuffer = stageReadback(commandEncoder, xBuffer);
-  const yReadBuffer = stageReadback(commandEncoder, yBuffer);
+  const xReadBuffer = xIsGpu ? null : stageReadback(commandEncoder, xBuffer);
+  const yReadBuffer = yIsGpu ? null : stageReadback(commandEncoder, yBuffer);
+
   submit(commandEncoder);
+
+  const gpuTimeMs = await extractTimestamp(ts);
+
+  if (xIsGpu && yIsGpu) {
+    destroyBuffers(paramsBuffer);
+    if (gpuTimeMs !== undefined) return { gpuTimeMs };
+    return {};
+  }
 
   const resultX = await extractResult(xReadBuffer, Float32Array);
   const resultY = await extractResult(yReadBuffer, Float32Array);
-  const gpuTimeMs = await extractTimestamp(ts);
 
-  destroyBuffers(xBuffer, yBuffer, paramsBuffer, xReadBuffer, yReadBuffer);
+  destroyBuffers(xBuffer, xReadBuffer, yBuffer, yReadBuffer, paramsBuffer);
 
   if (gpuTimeMs !== undefined) return { x: resultX, y: resultY, gpuTimeMs };
   return { x: resultX, y: resultY };

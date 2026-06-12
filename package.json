@@ -22,7 +22,8 @@
       "import": "./src/saxpy/saxpy.mjs",
       "types": "./src/saxpy/saxpy.d.ts"
     },
-    "./util/random": "./src/util/random.mjs"
+    "./util/random": "./src/util/random.mjs",
+    "./classes/GpuVector": "./src/classes/GpuVector.mjs"
   },
   "repository": {
     "type": "git",
