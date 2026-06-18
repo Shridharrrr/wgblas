@@ -5,6 +5,7 @@
 - [x] sscal
 - [x] sswap
 - [x] saxpy
+- [x] scopy
 
 ## Requirements
 
