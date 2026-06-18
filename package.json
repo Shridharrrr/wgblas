@@ -22,6 +22,10 @@
       "import": "./src/saxpy/saxpy.mjs",
       "types": "./src/saxpy/saxpy.d.ts"
     },
+    "./scopy": {
+      "import": "./src/scopy/scopy.mjs",
+      "types": "./src/scopy/scopy.d.ts"
+    },
     "./util/random": "./src/util/random.mjs",
     "./classes/GpuVector": "./src/classes/GpuVector.mjs"
   },
