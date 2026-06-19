@@ -4,3 +4,4 @@ export { sscal } from "./src/sscal/sscal.mjs";
 export { sswap } from "./src/sswap/sswap.mjs";
 export { saxpy } from "./src/saxpy/saxpy.mjs";
 export { scopy } from "./src/scopy/scopy.mjs";
+export { sdot } from "./src/sdot/sdot.mjs";

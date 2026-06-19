@@ -31,6 +31,15 @@ export function uploadBuffer(data, label = "blas-input", readback = false) {
   return buffer;
 }
 
+export function createStorageBuffer(size, label = "blas-storage") {
+  const device = getDevice();
+  return device.createBuffer({
+    label,
+    size,
+    usage: GPUBufferUsage.STORAGE,
+  });
+}
+
 export function createResultBuffer(size, label = "blas-result") {
   const device = getDevice();
   return device.createBuffer({

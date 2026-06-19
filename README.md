@@ -6,6 +6,7 @@
 - [x] sswap
 - [x] saxpy
 - [x] scopy
+- [x] sdot
 
 ## Requirements
 
