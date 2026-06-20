@@ -55,9 +55,10 @@ bench-%:
 # ── Benchmarks (CUDA) ────────────────────────────────────────────────────────
 
 cuda:
-	@for d in benchmarks/*/cuda; do $(MAKE) -C $$d && ./$$d/benchmark; done
+	@for d in benchmarks/*/cuda; do $(MAKE) -C $$d clean && $(MAKE) -C $$d && ./$$d/benchmark; done
 
 cuda-%:
+	$(MAKE) -C benchmarks/$*/cuda clean
 	$(MAKE) -C benchmarks/$*/cuda
 	./benchmarks/$*/cuda/benchmark
 

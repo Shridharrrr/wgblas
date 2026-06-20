@@ -1,7 +1,8 @@
 import { init, cleanup } from "wgblas";
 import { sswap } from "wgblas/sswap";
+import { GpuVector } from "wgblas/classes/GpuVector";
 import { randomFloat32Array } from "wgblas/util/random";
-import { median, printHeader, printRow } from "../utils/helpers.mjs";
+import { median, printHeader, printRow, getGpuModel, saveResults } from "../utils/helpers.mjs";
 
 const WARMUP_ITERS = 5;
 const BENCH_ITERS  = 100;
@@ -10,28 +11,38 @@ const SIZES = [32, 64, 128, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194
 const COLS = ["n", "compute_ms", "compute_GBs"];
 
 await init({ benchmark: true });
+
+// save results to benchmarks/results/<gpuModel>/sswap.wgblas.json
+const gpuModel = getGpuModel();
+const records = [];
+
 printHeader(COLS);
 
 for (const n of SIZES) {
-  const x = randomFloat32Array(n);
-  const y = randomFloat32Array(n);
+  const xGpu = GpuVector.from(randomFloat32Array(n));
+  const yGpu = GpuVector.from(randomFloat32Array(n));
 
   // warm up
   for (let i = 0; i < WARMUP_ITERS; i++) {
-    await sswap(n, x, 1, y, 1);
+    await sswap(n, xGpu, 1, yGpu, 1);
   }
 
-  // benchmark — gpuTimeMs is GPU-only compute time from timestamp-query
   const times = [];
   for (let i = 0; i < BENCH_ITERS; i++) {
-    const { gpuTimeMs } = await sswap(n, x, 1, y, 1);
+    const { gpuTimeMs } = await sswap(n, xGpu, 1, yGpu, 1);
     times.push(gpuTimeMs);
   }
 
+  xGpu.destroy();
+  yGpu.destroy();
+
   const med = median(times);
-  const bytes = 4 * n * 4;
+  const bytes = 4 * n * 4; // x read + x written + y read + y written
   const gbs = (bytes / 1e9) / (med / 1e3);
   printRow(COLS, [n, med, gbs]);
+  records.push({ n, compute_ms: med, compute_GBs: gbs });
 }
+
+saveResults("sswap", gpuModel, records);
 
 cleanup();

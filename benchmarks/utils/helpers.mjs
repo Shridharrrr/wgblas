@@ -1,3 +1,23 @@
+import { writeFileSync, mkdirSync } from "fs";
+import { getAdapter } from "../../src/init.mjs";
+
+export function getGpuModel() {
+  const device = getAdapter().info.device;
+  if (!device) return null;
+  // normalise: lowercase, non-alphanumeric → '-' (spec doesn't guarantee format)
+  return device.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+export function saveResults(routineName, gpuModel, results) {
+  if (!gpuModel) {
+    console.warn("Warning: couldn't fetch GPU model — skipping result save.");
+    return;
+  }
+  const outDir = `benchmarks/results/${gpuModel}/wgblas`;
+  mkdirSync(outDir, { recursive: true });
+  writeFileSync(`${outDir}/${routineName}.json`, JSON.stringify(results, null, 2)); // 2-space indent for human-readable diffs in git
+}
+
 export function median(arr) {
   const sorted = arr.slice().sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);

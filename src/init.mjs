@@ -65,3 +65,10 @@ export function getDevice() {
   }
   return _device;
 }
+
+export function getAdapter() {
+  if (!_adapter) {
+    throw new Error("WebGPU adapter not initialized — call init() first.");
+  }
+  return _adapter;
+}

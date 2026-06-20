@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include "../../utils/helpers.h"
 
@@ -7,17 +6,24 @@
 #define BENCH_ITERS  100
 
 int main(void) {
+    char gpu_model[256]; // cudaDeviceProp.name is defined as char[256]
+    get_gpu_model(gpu_model, sizeof(gpu_model));
+
     cublasHandle_t handle;
     cublasCreate(&handle);
 
-    int sizes[] = { 32, 64, 128, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216 };
-    int num_sizes = (int)(sizeof(sizes) / sizeof(sizes[0]));
+    int bench_ns[] = { 32, 64, 128, 512, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216 };
+    int num_ns = (int)(sizeof(bench_ns) / sizeof(bench_ns[0]));
+
+    // store results for JSON output
+    float med_times[num_ns];
+    float gbs_vals[num_ns];
 
     printf("%-10s  %-12s  %-12s\n", "n", "compute_ms", "compute_GBs");
     printf("%-10s  %-12s  %-12s\n", "----------", "------------", "------------");
 
-    for (int si = 0; si < num_sizes; si++) {
-        int n = sizes[si];
+    for (int si = 0; si < num_ns; si++) {
+        int n = bench_ns[si];
 
         float *h_x = random_float_array(n, -1.0f, 1.0f);
         float *h_y = random_float_array(n, -1.0f, 1.0f);
@@ -55,6 +61,8 @@ int main(void) {
         float compute_gbs = (bytes / 1e9f) / (med_compute / 1e3f);
 
         printf("%-10d  %-12.4f  %-12.4f\n", n, med_compute, compute_gbs);
+        med_times[si] = med_compute;
+        gbs_vals[si]  = compute_gbs;
 
         cudaEventDestroy(start);
         cudaEventDestroy(stop);
@@ -65,5 +73,8 @@ int main(void) {
     }
 
     cublasDestroy(handle);
+
+    save_results("scopy", gpu_model, bench_ns, med_times, gbs_vals, num_ns);
+
     return 0;
 }
