@@ -71,10 +71,10 @@ example-%:
 	node examples/$*/$*.js
 
 example-%-web:
-	npx vite --open /examples/$*/$*.html
+	npx vite --open /examples/$*/web/$*.html
 
 example-gpuvec-%:
 	node examples/$*/gpuvec.$*.js
 
 example-gpuvec-%-web:
-	npx vite --open /examples/$*/gpuvec.$*.html
+	npx vite --open /examples/$*/web/gpuvec.$*.html
