@@ -31,7 +31,10 @@
       "types": "./src/sdot/sdot.d.ts"
     },
     "./util/random": "./src/util/random.mjs",
-    "./classes/GpuVector": "./src/classes/GpuVector.mjs"
+    "./classes/GpuVector": {
+      "import": "./src/classes/GpuVector.mjs",
+      "types": "./src/classes/GpuVector.d.ts"
+    }
   },
   "repository": {
     "type": "git",

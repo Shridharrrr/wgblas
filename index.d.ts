@@ -1,4 +1,9 @@
-export { sscal } from "./src/sscal/sscal.mjs";
+export { sscal } from "./src/sscal/sscal.js";
+export { sswap } from "./src/sswap/sswap.js";
+export { saxpy } from "./src/saxpy/saxpy.js";
+export { scopy } from "./src/scopy/scopy.js";
+export { sdot } from "./src/sdot/sdot.js";
+export { GpuVector } from "./src/classes/GpuVector.js"
 
 /**
  * Initializes the WebGPU device.
