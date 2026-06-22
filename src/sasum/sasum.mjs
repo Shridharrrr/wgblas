@@ -22,7 +22,7 @@ export async function sasum(n, x, incx) {
     if (x.length < (n - 1) * incx + 1) throw new Error("x does not have enough elements for the given n and incx.");
 
     if (!_pipelineMain)   _pipelineMain   = await loadShader("sasum");
-    if (!_pipelineReduce) _pipelineReduce = await loadShader("reduction/abssum");
+    if (!_pipelineReduce) _pipelineReduce = await loadShader("reduction/sum");
 
     const xBuffer        = xIsGpu ? x._buf : uploadBuffer(x, "sasum-x", false);
     const partialsBuffer = createStorageBuffer((2 * WGS) * 4, "sasum-partials"); // 2*WGS partial sums of f32

@@ -34,9 +34,9 @@
       "import": "./src/sasum/sasum.mjs",
       "types": "./src/sasum/sasum.d.ts"
     },
-    "./srm2": {
-      "import": "./src/srm2/srm2.mjs",
-      "types": "./src/srm2/srm2.d.ts"
+    "./snrm2": {
+      "import": "./src/snrm2/snrm2.mjs",
+      "types": "./src/snrm2/snrm2.d.ts"
     },
     "./util/random": "./src/util/random.mjs",
     "./classes/GpuVector": "./src/classes/GpuVector.mjs"
