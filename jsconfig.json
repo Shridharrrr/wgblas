@@ -9,6 +9,8 @@
       "wgblas/saxpy": ["./src/saxpy/saxpy.d.ts"],
       "wgblas/scopy": ["./src/scopy/scopy.d.ts"],
       "wgblas/sdot": ["./src/sdot/sdot.d.ts"],
+      "wgblas/sasum": ["./src/sasum/sasum.d.ts"],
+      "wgblas/snrm2": ["./src/snrm2/snrm2.d.ts"],
       "wgblas/util/random": ["./src/util/random.mjs"]
     }
   }
