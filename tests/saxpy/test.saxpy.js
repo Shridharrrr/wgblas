@@ -5,10 +5,12 @@ import { dirname, join } from "path";
 import { init, cleanup } from "wgblas";
 import { saxpy } from "wgblas/saxpy";
 import { assertUlp } from "../helpers/ulp.js";
+import { getUlpThreshold } from "../helpers/accuracy.js";
 
 const thisDir = dirname(fileURLToPath(import.meta.url));
 const fixturesPath = join(thisDir, "fixtures/fixtures.json");
 const fixtures = JSON.parse(readFileSync(fixturesPath, "utf8"));
+const ULP_THRESHOLD = getUlpThreshold("saxpy");
 
 before(async () => { await init(); });
 after(() => { cleanup(); });
@@ -24,6 +26,6 @@ test("saxpy fixtures", async () => {
     const expectedY = new Float32Array(fixture.expected_y);
 
     const { y: resultY } = await saxpy(n, alpha, x, incx, y, incy);
-    assertUlp(resultY, expectedY, 0, "saxpy");
+    assertUlp(resultY, expectedY, ULP_THRESHOLD, "saxpy");
   }
 });

@@ -5,10 +5,12 @@ import { dirname, join } from "path";
 import { init, cleanup } from "wgblas";
 import { sscal } from "wgblas/sscal";
 import { assertUlp } from "../helpers/ulp.js";
+import { getUlpThreshold } from "../helpers/accuracy.js";
 
 const thisDir = dirname(fileURLToPath(import.meta.url));
 const fixturesPath = join(thisDir, "fixtures/fixtures.json");
 const fixtures = JSON.parse(readFileSync(fixturesPath, "utf8"));
+const ULP_THRESHOLD = getUlpThreshold("sscal");
 
 before(async () => { await init(); });
 after(() => { cleanup(); });
@@ -20,8 +22,8 @@ test("sscal fixtures", async () => {
     const incx = fixture.incx;
     const x = new Float32Array(fixture.x);
     const expected = new Float32Array(fixture.expected);
-    
+
     const result = await sscal(n, alpha, x, incx);
-    assertUlp(result, expected, 0, "sscal");
+    assertUlp(result, expected, ULP_THRESHOLD, "sscal");
   }
 });

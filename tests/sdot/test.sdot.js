@@ -5,12 +5,12 @@ import { dirname, join } from "path";
 import { init, cleanup } from "wgblas";
 import { sdot } from "wgblas/sdot";
 import { ulpDiff } from "../helpers/ulp.js";
+import { getUlpThreshold } from "../helpers/accuracy.js";
 
 const thisDir = dirname(fileURLToPath(import.meta.url));
 const fixturesPath = join(thisDir, "fixtures/fixtures.json");
 const fixtures = JSON.parse(readFileSync(fixturesPath, "utf8"));
-
-const ULP_THRESHOLD = 90; // tree reduction reorders additions vs scipy's sequential sum
+const ULP_THRESHOLD = getUlpThreshold("sdot");
 
 before(async () => { await init(); });
 after(() => { cleanup(); });
