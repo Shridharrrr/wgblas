@@ -15,5 +15,5 @@
       "wgblas/sdot": ["./src/sdot/sdot.d.ts"]
     }
   },
-  "include": ["types/smoke.ts"]
+  "include": []
 }
