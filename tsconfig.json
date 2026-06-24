@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "paths": {
+      "wgblas": ["./index.d.ts"],
+      "wgblas/sscal": ["./src/sscal/sscal.d.ts"],
+      "wgblas/sswap": ["./src/sswap/sswap.d.ts"],
+      "wgblas/saxpy": ["./src/saxpy/saxpy.d.ts"],
+      "wgblas/scopy": ["./src/scopy/scopy.d.ts"],
+      "wgblas/sdot": ["./src/sdot/sdot.d.ts"]
+    }
+  },
+  "include": ["types/smoke.ts"]
+}
